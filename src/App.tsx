@@ -81,7 +81,7 @@ function App() {
                         </div>
                         <div>
                           <p className="text-sm text-white/60">Email</p>
-                          <p className="font-medium">omar@oajo.art</p>
+                          <p className="font-medium">omar@oajo.at</p>
                         </div>
                       </a>
 
