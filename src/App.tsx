@@ -22,9 +22,9 @@ const navigationLinks = [
 ] as const;
 
 const socialLinks = [
-  { href: 'https://www.instagram.com/omarayesh02?igsh=OHhsc2xrb2lycDhn#' target="_blank", icon: <Instagram />, label: 'Instagram' },
-  { href: 'https://www.linkedin.com/in/omar-ayesh-1948ab255?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app' target="_blank", icon: <Linkedin />, label: 'LinkedIn' },
-  { href: 'https://www.upwork.com/freelancers/~01fe6efd780f08fa79' target="_blank", icon: <Briefcase />, label: 'Upwork' }
+  { href: 'https://www.instagram.com/omarayesh02?igsh=OHhsc2xrb2lycDhn#' , icon: <Instagram />, label: 'Instagram' },
+  { href: 'https://www.linkedin.com/in/omar-ayesh-1948ab255?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app' , icon: <Linkedin />, label: 'LinkedIn' },
+  { href: 'https://www.upwork.com/freelancers/~01fe6efd780f08fa79' , icon: <Briefcase />, label: 'Upwork' }
 ] as const;
 
 function App() {
