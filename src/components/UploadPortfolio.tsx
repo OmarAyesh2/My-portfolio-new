@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
 
 interface UploadedMedia {
-  file: File;
+  publicId: string;
   url: string;
   type: 'image' | 'video';
+  format: string;
 }
 
 const UploadPortfolio: React.FC = () => {
@@ -16,28 +17,44 @@ const UploadPortfolio: React.FC = () => {
     setUploading(true);
     setError(null);
 
-    try {
-      const newFiles = Array.from(files).map(file => ({
-        file,
-        url: URL.createObjectURL(file),
-        type: file.type.startsWith('image/') ? 'image' : 'video'
-      }));
+    const uploadPromises = Array.from(files).map(async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'portfolio_preset'); // You'll need to create this in Cloudinary
 
-      setUploadedFiles(prev => [...prev, ...newFiles]);
+      try {
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/auto/upload`,
+          {
+            method: 'POST',
+            body: formData
+          }
+        );
+
+        if (!response.ok) throw new Error('Upload failed');
+
+        const data = await response.json();
+        return {
+          publicId: data.public_id,
+          url: data.secure_url,
+          type: data.resource_type as 'image' | 'video',
+          format: data.format
+        };
+      } catch (err) {
+        console.error('Upload error:', err);
+        throw new Error(`Failed to upload ${file.name}`);
+      }
+    });
+
+    try {
+      const results = await Promise.all(uploadPromises);
+      setUploadedFiles(prev => [...prev, ...results]);
     } catch (err) {
-      setError('Failed to process files');
-      console.error('Upload error:', err);
+      setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setUploading(false);
     }
   };
-
-  // Clean up object URLs when component unmounts
-  React.useEffect(() => {
-    return () => {
-      uploadedFiles.forEach(file => URL.revokeObjectURL(file.url));
-    };
-  }, [uploadedFiles]);
 
   return (
     <div className="w-full h-full flex flex-col overflow-y-auto">
@@ -85,7 +102,7 @@ const UploadPortfolio: React.FC = () => {
                 </div>
 
                 <h3 className="text-lg font-semibold text-white mb-2">
-                  {uploading ? 'Processing...' : 'Drop files here'}
+                  {uploading ? 'Uploading...' : 'Drop files here'}
                 </h3>
                 
                 <p className="text-white/60 text-sm mb-4">
@@ -123,12 +140,11 @@ const UploadPortfolio: React.FC = () => {
                         <video
                           src={file.url}
                           className="w-full h-full object-cover"
-                          controls
                         />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity">
                         <div className="absolute bottom-2 left-2 right-2 text-white text-sm truncate">
-                          {file.file.name}
+                          {file.publicId}
                         </div>
                       </div>
                     </div>
